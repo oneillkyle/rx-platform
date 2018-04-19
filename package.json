@@ -1,0 +1,24 @@
+{
+  "name": "rx-platform",
+  "version": "1.0.0",
+  "description": "Test RxJS Platform",
+  "main": "index.js",
+  "repository": "https://github.com/oneillkyle/rx-platform.git",
+  "author": "Kyle O'Neill <oneillkyle@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "webpack-dev-server --mode development",
+    "build": "rimraf dist && webpack --mode production"
+  },
+  "dependencies": {
+    "rxjs": "^5.5.10"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
+    "webpack": "^4.6.0",
+    "webpack-cli": "^2.0.14",
+    "webpack-dev-server": "^3.1.3"
+  }
+}
