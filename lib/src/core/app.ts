@@ -1,5 +1,5 @@
 import { Component } from './component';
-import { addAppElement, createChildComponent, createComponent } from './renderers';
+import { addAppElement, createComponent } from './renderers';
 import { eventBus } from './detection';
 
 export class App {
@@ -12,7 +12,6 @@ export class App {
     constructor(
         public config: { entryComponent: Component },
     ) {
-        console.log(eventBus);
         eventBus.onEmit().subscribe(({type, payload}) => {
             console.log(type);
             if (type === 'rerender') this.rerender();
@@ -26,10 +25,11 @@ export class App {
     }
 
     rerender() {
-        this.element.innerHTML = '';        
+        this.element.innerHTML = this.entryComponent.renderTag();
         createComponent(this.entryComponent)
             .subscribe(({element, observer}) => {
-                this.element.appendChild(element);
+                console.log(element);
+                // this.element.appendChild(element);
             });
     }
 }

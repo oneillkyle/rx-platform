@@ -27,6 +27,10 @@ export const eventBus = (function createEventBus() {
     } as EventBus;
 })();
 
+export function createComponentBus() {
+    
+}
+
 export function observeNode(targetNode: HTMLElement) {
     // Options for the observer (which mutations to observe)
     var config = { attributes: true, childList: true };

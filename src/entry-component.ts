@@ -4,7 +4,31 @@ import { SecondComponent } from './second-component';
 
 export const EntryComponent = new Component({
     tag: 'entry',
-    template: () => {
-        return `<div>${SecondComponent.render()}</div>`
+    template() {
+        console.log(this);
+        return `
+        <div>
+            ${SecondComponent.render(
+                {test: 'foo', 'te': this.test}
+            )}
+        </div>
+        <p>${this.test}${this.myMethod()}</p>`
+    },
+    props() {
+        return [];
+    },
+    data() {
+        return {
+            test: 'foo 2'
+        }
+    },
+    methods: {
+        myMethod() {
+            this.test = 4;
+            return this.otherMethod();
+        },
+        otherMethod() {
+            return 2;
+        }
     }
 });

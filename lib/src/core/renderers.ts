@@ -13,34 +13,29 @@ export function addAppElement () {
     });
 }
 
-// export function addElement () {
-//     let newDiv = document.createElement('rx-app');
-//     let newContent = document.createTextNode('Hi there and greetings!'); 
-//     newDiv.appendChild(newContent);  
-  
-//     let currentDiv = document.getElementById('div1'); 
-//     document.body.insertBefore(newDiv, currentDiv);
-// }
-
-export function createChildComponent(parent: App|Component, child: Component) {
-    return new Observable(observer => {
-        let newTag = document.createElement(child.tag);
-        newTag.innerHTML = child.templateFunction();
-        // let tag = child.render();
-        parent.element.appendChild(newTag);
-        observer.next({tag: newTag, observer: observeNode(newTag)});
-        observer.complete();
-    });
+export function createComponentTag(component: Component): HTMLElement {
+    let newTag = document.createElement(component.tag);
+    newTag.dataset.rxId = component.id;
+    return newTag
 }
 
 export function createComponent(component: Component) {
     return new Observable(observer => {
-        let newTag = document.createElement(component.tag);
-        newTag.dataset.rxId = component.id;
+        let newTag = createComponentTag(component);
         newTag.innerHTML = component.templateFunction();
         observer.next({element: newTag, observer: observeNode(newTag)});
         observer.complete();
     });
+}
+
+export function refreshComponent (id: string, element: HTMLElement) {
+    let idTag = document.querySelector(`[data-rx-id="${id}"]`);
+    console.log(id);
+    console.log(idTag);
+    if (!idTag) return;
+    idTag.outerHTML = element.outerHTML;
+    // idTag.appendChild(element);
+    // document.body.insertBefore(element, idTag);
 }
 
 export function templateAsync(observable: Observable<string>) {

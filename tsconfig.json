@@ -8,9 +8,13 @@
         "allowJs": true,
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
-        "exclude": [
-            "node_modules",
-            "**/*.spec.ts"
+        "lib": [
+            "es2016",
+            "dom"
         ]
-    }
+    },
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
 }
