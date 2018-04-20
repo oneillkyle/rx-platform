@@ -1,19 +1,35 @@
 import { Component } from './component';
-import { addAppElement, createChildComponent } from './renderers';
+import { addAppElement, createChildComponent, createComponent } from './renderers';
+import { eventBus } from './detection';
 
 export class App {
-    element: any;
+    element: HTMLElement;
+    entryComponent: Component;
     children: any[] = [];
-    observers = {};
+    observers: MutationObserver[] = [];
+    observer: MutationObserver;
 
     constructor(
         public config: { entryComponent: Component },
     ) {
+        console.log(eventBus);
+        eventBus.onEmit().subscribe(({type, payload}) => {
+            console.log(type);
+            if (type === 'rerender') this.rerender();
+        });
+        this.entryComponent = config.entryComponent;
         addAppElement().subscribe(({element, observer}) => {
             this.element = element;
-            createChildComponent(this, this.config.entryComponent).subscribe(child => {
-                this.children.push(child);
-            });
+            this.observer = observer;
+            this.rerender();
         });
+    }
+
+    rerender() {
+        this.element.innerHTML = '';        
+        createComponent(this.entryComponent)
+            .subscribe(({element, observer}) => {
+                this.element.appendChild(element);
+            });
     }
 }

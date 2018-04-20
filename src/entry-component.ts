@@ -1,6 +1,10 @@
-import { Component } from '../lib/src/core';
+import { Component, templateAsync } from '../lib/src/core';
+
+import { SecondComponent } from './second-component';
 
 export const EntryComponent = new Component({
     tag: 'entry',
-    template: '<div>Test</div>'
+    template: () => {
+        return `<div>${SecondComponent.render()}</div>`
+    }
 });

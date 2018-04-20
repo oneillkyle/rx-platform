@@ -1,7 +1,33 @@
+import { Subject } from 'rxjs/Subject';
+import { Observable } from 'rxjs/Observable';
 
-export function observeNode() {
-    var targetNode = document.getElementById('some-id');
-    
+export class EventBus {
+    dispatch: (type: string, payload: {}) => void;
+    onDispatch: () => Observable<{type: string, payload: {}}>;
+    emit: (type: string, payload: {}) => void;
+    onEmit: () => Observable<{type: string, payload: {}}>;
+}
+
+export const eventBus = (function createEventBus() {
+    let emitSub = new Subject();
+    let dispatchSub = new Subject();
+    return {
+        dispatch: (type: string, payload: {}) => {
+            dispatchSub.next({type, payload});
+        },
+        onDispatch: () => {
+            return dispatchSub.asObservable();            
+        },
+        emit: (type: string, payload: {}) => {
+            emitSub.next({type, payload});
+        },
+        onEmit: () => {
+            return emitSub.asObservable();
+        },
+    } as EventBus;
+})();
+
+export function observeNode(targetNode: HTMLElement) {
     // Options for the observer (which mutations to observe)
     var config = { attributes: true, childList: true };
     
@@ -22,6 +48,7 @@ export function observeNode() {
     
     // Start observing the target node for configured mutations
     observer.observe(targetNode, config);
+    return observer;
     
     // Later, you can stop observing
     // observer.disconnect();
