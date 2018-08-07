@@ -29,6 +29,10 @@ export const EntryComponent = new Component({
         },
         otherMethod() {
             return 2;
+        },
+        init() {
+            setTimeout(() => {
+                this.test = 'Test 3'}, 1000);
         }
     }
 });

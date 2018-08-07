@@ -26,9 +26,10 @@ export class App {
 
     rerender() {
         this.element.innerHTML = this.entryComponent.renderTag();
+        eventBus.dispatch('initialRender', {});
         createComponent(this.entryComponent)
             .subscribe(({element, observer}) => {
-                console.log(element);
+                // console.log(element);
                 // this.element.appendChild(element);
             });
     }

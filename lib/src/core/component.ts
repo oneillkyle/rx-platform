@@ -1,5 +1,5 @@
-import { map } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
+import { map, skip } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { App } from './app';
 import { createComponent, refreshComponent, createComponentTag } from './renderers';
@@ -12,7 +12,7 @@ interface ComponentConfig {
     props: () => string[];
     data: () => {};
     methods: {
-        [x: string]: () => {}
+        [x: string]: () => any
     }
 }
 
@@ -22,7 +22,7 @@ export class Component {
     templateFunction: () => string;
     tag: string;
     observer: MutationObserver;
-    renderer: Subject<any> = new Subject();
+    renderer: BehaviorSubject<any> = new BehaviorSubject(null);
     eventBus: EventBus;
     id: string;
     propFunction: () => {};
@@ -32,6 +32,7 @@ export class Component {
     methods: {
         [x: string]: () => any
     };
+    inited = false;
     [key: string]: any;
 
     constructor(public config: ComponentConfig) {
@@ -41,21 +42,21 @@ export class Component {
 
         this.setConfig(config);
         
-        this.renderer.subscribe(element => {
+        this.renderer.pipe(skip(1)).subscribe(element => {
             this.element = element;
             console.log(element);
-            refreshComponent(this.id, element);
-            // this.eventBus.emit('rerender', { id: this.id });
+            console.log('renderer!')
+            if (this.inited) refreshComponent(this.id, element);
         });
-        // this.renderSubject();
+
+        this.eventBus.onDispatch().subscribe(({type, payload}) => {
+            if (type === 'initialRender') this.renderSubject();
+        });
     }
 
-    init() {
-        // console.log(this.observer);
-    }
+    init() {}
 
     render(data?: {}) {
-        // console.log(data);
         return this.element ? this.element.outerHTML : this.renderTag();
     }
 
@@ -70,6 +71,7 @@ export class Component {
                 return element;
             })
         ).subscribe(((element: HTMLElement) => {
+            console.log(element);
             this.renderer.next(element);
         }));
     }
@@ -86,6 +88,9 @@ export class Component {
             this[key] = config.methods[key];
         });
         this.createDataProperties(this.data);
+        this.renderSubject();
+        this.inited = true;
+        this.init();
     }
 
     createDataProperties(props: {[x:string]: any}) {
@@ -96,10 +101,8 @@ export class Component {
                     if (this.data[key] !== y) {
                         this.data[key] = y;
                         console.log(`set key: ${key}, val: ${y}`);
-                        this.renderSubject();
+                        if (this.inited) this.renderSubject();
                     }
-                    // this.eventBus.emit('rerender', { id: this.id });            
-                    // this.fireChangeDetection();
                 }
             });
         });
