@@ -5,11 +5,13 @@ import { SecondComponent } from './second-component';
 export const EntryComponent = new Component({
     tag: 'entry',
     template() {
-        console.log(this);
         return `
         <div>
             ${SecondComponent.render(
                 {test: 'foo', 'te': this.test}
+            )}
+            ${SecondComponent.render(
+                {test: 'foo2', 'te': this.test}
             )}
         </div>
         <p>${this.test}${this.myMethod()}</p>`

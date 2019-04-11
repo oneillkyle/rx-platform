@@ -2,13 +2,16 @@ import { Component, templateAsync } from '../lib/src/core';
 
 export const SecondComponent = new Component({
     tag: 'second',
-    template: () => {
-        return `<div>test{{test}}</div>`
+    template() {
+        return `
+        <div>
+            test ${this.test}
+        </div>`
     },
-    props: () => {
+    props() {
         return ['test'];
     },
-    data: () => {
+    data() {
         return {}
     },
     methods: {}

@@ -2,8 +2,17 @@ import { map, skip } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { App } from './app';
-import { createComponent, refreshComponent, createComponentTag } from './renderers';
-import { observeNode, eventBus, EventBus, createComponentBus } from './detection';
+import {
+    createComponent,
+    refreshComponent,
+    createComponentTag
+} from './renderers';
+import {
+    observeNode,
+    eventBus,
+    EventBus,
+    createComponentBus
+} from './detection';
 import { generateId } from './id';
 
 interface ComponentConfig {
@@ -12,8 +21,8 @@ interface ComponentConfig {
     props: () => string[];
     data: () => {};
     methods: {
-        [x: string]: () => any
-    }
+        [x: string]: () => any;
+    };
 }
 
 export class Component {
@@ -30,7 +39,7 @@ export class Component {
     dataFunction: () => {};
     data: {};
     methods: {
-        [x: string]: () => any
+        [x: string]: () => any;
     };
     inited = false;
     [key: string]: any;
@@ -41,15 +50,15 @@ export class Component {
         this.componentBus = createComponentBus();
 
         this.setConfig(config);
-        
+
         this.renderer.pipe(skip(1)).subscribe(element => {
             this.element = element;
             console.log(element);
-            console.log('renderer!')
+            console.log('renderer!');
             if (this.inited) refreshComponent(this.id, element);
         });
 
-        this.eventBus.onDispatch().subscribe(({type, payload}) => {
+        this.eventBus.onDispatch().subscribe(({ type, payload }) => {
             if (type === 'initialRender') this.renderSubject();
         });
     }
@@ -57,6 +66,8 @@ export class Component {
     init() {}
 
     render(data?: {}) {
+        this.data = { ...this.data, ...data };
+        this.createDataProperties(this.data);
         return this.element ? this.element.outerHTML : this.renderTag();
     }
 
@@ -65,18 +76,21 @@ export class Component {
     }
 
     renderSubject() {
-        createComponent(this).pipe(
-            map(({ element, observer }) => {
-                this.observer = observer;
-                return element;
-            })
-        ).subscribe(((element: HTMLElement) => {
-            console.log(element);
-            this.renderer.next(element);
-        }));
+        createComponent(this)
+            .pipe(
+                map(({ element, observer }) => {
+                    this.observer = observer;
+                    return element;
+                })
+            )
+            .subscribe((element: HTMLElement) => {
+                // console.log(element);
+                this.renderer.next(element);
+            });
     }
 
     setConfig(config: ComponentConfig) {
+        console.log(config);
         this.tag = config.tag;
         this.propFunction = config.props;
         this.props = config.props();
@@ -93,23 +107,27 @@ export class Component {
         this.init();
     }
 
-    createDataProperties(props: {[x:string]: any}) {
+    createDataProperties(props: { [x: string]: any }) {
         Object.keys(props).map((key: string) => {
-            Object.defineProperty(this, key, {
-                get: function() { return this.data[key]; },
-                set: function(y) {
-                    if (this.data[key] !== y) {
-                        this.data[key] = y;
-                        console.log(`set key: ${key}, val: ${y}`);
-                        if (this.inited) this.renderSubject();
+            if (!this.hasOwnProperty(key)) {
+                Object.defineProperty(this, key, {
+                    get: function() {
+                        return this.data[key];
+                    },
+                    set: function(y) {
+                        if (this.data[key] !== y) {
+                            this.data[key] = y;
+                            console.log(`set key: ${key}, val: ${y}`);
+                            if (this.inited) this.renderSubject();
+                        }
                     }
-                }
-            });
+                });
+            }
         });
     }
 
     getMethods() {
-        let methods: {[x: string]: any} = {};
+        let methods: { [x: string]: any } = {};
         Object.keys(this.config.methods).map((key: string) => {
             methods[key] = this.config.methods[key];
         });
